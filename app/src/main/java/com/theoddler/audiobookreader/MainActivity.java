@@ -1,5 +1,6 @@
 package com.theoddler.audiobookreader;
 
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -10,6 +11,8 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 public class MainActivity extends AppCompatActivity {
+
+    private final String PREF_ROOT = "audio_books_root";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,5 +51,18 @@ public class MainActivity extends AppCompatActivity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    private String getOrAskForBookRoot() {
+        SharedPreferences prefs = getPreferences(MODE_PRIVATE);
+        SharedPreferences.Editor editor = prefs.edit();
+
+        String root = prefs.getString(PREF_ROOT, null);
+        if (root == null) {
+            // No root set yet
+            // TODO
+            return null;
+        }
+        else return root;
     }
 }
