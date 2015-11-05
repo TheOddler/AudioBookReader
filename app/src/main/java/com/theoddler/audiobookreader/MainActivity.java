@@ -1,5 +1,6 @@
 package com.theoddler.audiobookreader;
 
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
@@ -10,9 +11,13 @@ import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import net.rdrei.android.dirchooser.DirectoryChooserActivity;
+import net.rdrei.android.dirchooser.DirectoryChooserConfig;
+
 public class MainActivity extends AppCompatActivity {
 
     private final String PREF_ROOT = "audio_books_root";
+    private final int REQUEST_ROOT = 300;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -29,6 +34,8 @@ public class MainActivity extends AppCompatActivity {
                         .setAction("Action", null).show();
             }
         });
+
+        getOrAskForRoot();
     }
 
     @Override
@@ -53,16 +60,52 @@ public class MainActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    private String getOrAskForBookRoot() {
-        SharedPreferences prefs = getPreferences(MODE_PRIVATE);
-        SharedPreferences.Editor editor = prefs.edit();
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
 
+        if (requestCode == REQUEST_ROOT) {
+            if (resultCode == DirectoryChooserActivity.RESULT_CODE_DIR_SELECTED) {
+                String chosenDir = data.getStringExtra(DirectoryChooserActivity.RESULT_SELECTED_DIR);
+                onSelectedRoot(chosenDir);
+            } else {
+                // Nothing selected
+                // TODO
+            }
+        }
+    }
+
+    private void getOrAskForRoot() {
+        SharedPreferences prefs = getPreferences(MODE_PRIVATE);
         String root = prefs.getString(PREF_ROOT, null);
+
         if (root == null) {
             // No root set yet
-            // TODO
-            return null;
+            final Intent chooserIntent = new Intent(this, DirectoryChooserActivity.class);
+            final DirectoryChooserConfig config = DirectoryChooserConfig.builder()
+                    .newDirectoryName("DirChooserSample")
+                    .allowReadOnlyDirectory(false)
+                    .allowNewDirectoryNameModification(true)
+                    .build();
+
+            chooserIntent.putExtra(DirectoryChooserActivity.EXTRA_CONFIG, config);
+
+            startActivityForResult(chooserIntent, REQUEST_ROOT);
         }
-        else return root;
+        else {
+            onFoundRoot(root);
+        }
+    }
+
+    private void onSelectedRoot(String root) {
+        SharedPreferences prefs = getPreferences(MODE_PRIVATE);
+        SharedPreferences.Editor editor = prefs.edit();
+        editor.putString(PREF_ROOT, root);
+
+        onFoundRoot(root);
+    }
+
+    private void onFoundRoot(String root) {
+        // TODO
     }
 }
