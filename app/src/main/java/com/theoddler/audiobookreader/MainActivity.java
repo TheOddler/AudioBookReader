@@ -1,5 +1,7 @@
 package com.theoddler.audiobookreader;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -7,6 +9,7 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -53,11 +56,55 @@ public class MainActivity extends AppCompatActivity {
         int id = item.getItemId();
 
         //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
+        switch (id) {
+            case R.id.action_settings:
+                return true;
+            case R.id.action_select_root:
+                startRootSelection();
+                return true;
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+
+    private void getOrAskForRoot() {
+        SharedPreferences prefs = getPreferences(MODE_PRIVATE);
+        String root = prefs.getString(PREF_ROOT, null);
+
+        if (root == null) {
+            // No root set yet
+            // Show an alert about this
+            // When the user click "ok" start the root selection
+            AlertDialog.Builder alert = new AlertDialog.Builder(this);
+            alert.setTitle("No books found :(");
+            alert.setMessage("Please select the folder with all your audio-books.");
+            alert.setNeutralButton("OK",
+                    new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int id) {
+                            dialog.cancel();
+                            // Start the root selection...
+                            startRootSelection();
+                        }
+                    });
+            alert.create().show();
+        }
+        else {
+            onRootSet(root);
+        }
+    }
+
+    private void startRootSelection() {
+        final Intent chooserIntent = new Intent(this, DirectoryChooserActivity.class);
+        final DirectoryChooserConfig config = DirectoryChooserConfig.builder()
+                .newDirectoryName("Audio Books")
+                .allowReadOnlyDirectory(false)
+                .allowNewDirectoryNameModification(true)
+                .build();
+
+        chooserIntent.putExtra(DirectoryChooserActivity.EXTRA_CONFIG, config);
+
+        startActivityForResult(chooserIntent, REQUEST_ROOT);
     }
 
     @Override
@@ -75,37 +122,18 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private void getOrAskForRoot() {
-        SharedPreferences prefs = getPreferences(MODE_PRIVATE);
-        String root = prefs.getString(PREF_ROOT, null);
-
-        if (root == null) {
-            // No root set yet
-            final Intent chooserIntent = new Intent(this, DirectoryChooserActivity.class);
-            final DirectoryChooserConfig config = DirectoryChooserConfig.builder()
-                    .newDirectoryName("DirChooserSample")
-                    .allowReadOnlyDirectory(false)
-                    .allowNewDirectoryNameModification(true)
-                    .build();
-
-            chooserIntent.putExtra(DirectoryChooserActivity.EXTRA_CONFIG, config);
-
-            startActivityForResult(chooserIntent, REQUEST_ROOT);
-        }
-        else {
-            onFoundRoot(root);
-        }
-    }
-
     private void onSelectedRoot(String root) {
         SharedPreferences prefs = getPreferences(MODE_PRIVATE);
         SharedPreferences.Editor editor = prefs.edit();
         editor.putString(PREF_ROOT, root);
+        editor.commit();
 
-        onFoundRoot(root);
+        onRootSet(root);
     }
 
-    private void onFoundRoot(String root) {
+    private void onRootSet(String root) {
         // TODO
+        // also called when re-selecting root
+        Log.println(Log.DEBUG, "MAIN", "Found root: " + root);
     }
 }
