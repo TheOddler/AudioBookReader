@@ -17,10 +17,17 @@ import android.view.MenuItem;
 import net.rdrei.android.dirchooser.DirectoryChooserActivity;
 import net.rdrei.android.dirchooser.DirectoryChooserConfig;
 
+import java.io.File;
+import java.io.FileFilter;
+import java.util.ArrayList;
+import java.util.List;
+
 public class MainActivity extends AppCompatActivity {
 
     private final String PREF_ROOT = "audio_books_root";
-    private final int REQUEST_ROOT = 300;
+    private final int REQUEST_ROOT = 31415;
+
+    private final List<Book> books = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -131,9 +138,28 @@ public class MainActivity extends AppCompatActivity {
         onRootSet(root);
     }
 
-    private void onRootSet(String root) {
-        // TODO
+    private void onRootSet(String rootPath) {
         // also called when re-selecting root
-        Log.println(Log.DEBUG, "MAIN", "Found root: " + root);
+        Log.println(Log.DEBUG, "MAIN", "Found root: " + rootPath);
+
+        File root = new File(rootPath);
+
+        if (!root.isDirectory()) {
+            throw new IllegalArgumentException("RootPath doesn't point to a directory.");
+        }
+
+        // TODO
+        // Allow for books in sub folders
+        // for simplicity first implement getting book directly in the root
+        File[] possibleBooks = root.listFiles();
+
+        for (File dir : possibleBooks) {
+            Log.println(Log.INFO, "BOOKS", "Looking for book in " + dir.getPath());
+            Book book = Book.parseToBook(dir, this);
+            if (book != null) {
+                books.add(book);
+                Log.println(Log.INFO, "BOOKS", "Found book: " + book.toString());
+            }
+        }
     }
 }
