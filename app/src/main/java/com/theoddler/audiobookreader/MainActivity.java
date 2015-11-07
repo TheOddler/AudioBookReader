@@ -29,7 +29,6 @@ public class MainActivity extends AppCompatActivity {
     private final int REQUEST_ROOT = 31415;
 
     private final Library library = new Library();
-    private ListView booksView;
 
     private ReaderService readerService;
     private Intent readerBindingIntent;
@@ -52,7 +51,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        booksView = (ListView)findViewById(R.id.books_list);
+        ListView booksView = (ListView) findViewById(R.id.books_list);
         booksView.setAdapter(new BookAdapter(library, this));
 
         getOrAskForRoot();
@@ -170,7 +169,7 @@ public class MainActivity extends AppCompatActivity {
     private void onRootSet(String rootPath) {
         // also called when re-selecting root
         Log.println(Log.DEBUG, "MAIN", "Found root: " + rootPath);
-        
+
         library.removeAllBook();
         library.findAllBooksIn(new File(rootPath), this);
     }
