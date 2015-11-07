@@ -10,7 +10,6 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -171,27 +170,9 @@ public class MainActivity extends AppCompatActivity {
     private void onRootSet(String rootPath) {
         // also called when re-selecting root
         Log.println(Log.DEBUG, "MAIN", "Found root: " + rootPath);
-
-        File root = new File(rootPath);
-
-        if (!root.isDirectory()) {
-            throw new IllegalArgumentException("RootPath doesn't point to a directory.");
-        }
-
+        
         library.removeAllBook();
-        // TODO
-        // Allow for books in sub folders
-        // for simplicity first implement getting book directly in the root
-        File[] possibleBooks = root.listFiles();
-
-        for (File dir : possibleBooks) {
-            Log.println(Log.INFO, "BOOKS", "Looking for book in " + dir.getPath());
-            Book book = Book.tryParseToBook(dir, this);
-            if (book != null) {
-                library.addBook(book);
-                Log.println(Log.INFO, "BOOKS", "Found book: " + book.toString());
-            }
-        }
+        library.findAllBooksIn(new File(rootPath), this);
     }
 
     public void onBookPicked(View view) {
