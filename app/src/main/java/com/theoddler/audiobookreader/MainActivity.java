@@ -18,7 +18,6 @@ import net.rdrei.android.dirchooser.DirectoryChooserActivity;
 import net.rdrei.android.dirchooser.DirectoryChooserConfig;
 
 import java.io.File;
-import java.io.FileFilter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -122,7 +121,8 @@ public class MainActivity extends AppCompatActivity {
             if (resultCode == DirectoryChooserActivity.RESULT_CODE_DIR_SELECTED) {
                 String chosenDir = data.getStringExtra(DirectoryChooserActivity.RESULT_SELECTED_DIR);
                 onSelectedRoot(chosenDir);
-            } else {
+            }
+            else {
                 // Nothing selected
                 // TODO
             }
@@ -155,7 +155,7 @@ public class MainActivity extends AppCompatActivity {
 
         for (File dir : possibleBooks) {
             Log.println(Log.INFO, "BOOKS", "Looking for book in " + dir.getPath());
-            Book book = Book.parseToBook(dir, this);
+            Book book = Book.tryParseToBook(dir, this);
             if (book != null) {
                 books.add(book);
                 Log.println(Log.INFO, "BOOKS", "Found book: " + book.toString());

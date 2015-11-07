@@ -1,9 +1,7 @@
 package com.theoddler.audiobookreader;
 
-import android.content.ContentResolver;
 import android.content.Context;
 import android.database.Cursor;
-import android.net.Uri;
 import android.provider.MediaStore;
 
 import java.io.File;
@@ -15,46 +13,69 @@ import java.util.List;
  */
 public class Book {
 
-    private final String name;
+    private final String title;
 
-    private final List<Long> fileIds;
+    private final List<BookFile> files;
 
-    public Book(String name, List<Long> fileIds) {
-        this.name = name;
-        this.fileIds = fileIds; //use new List... here?
+    public Book(String title, List<BookFile> files) {
+        this.title = title;
+        this.files = files; //use new List... here?
     }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public long getDuration() {
+        long dur = 0;
+        for(BookFile file : files) {
+            dur += file.getDuration();
+        }
+        return dur;
+    }
+
+
 
     @Override
     public String toString() {
-        return "[ (Book) Title: " + name + ", #Chapters: " + fileIds.size() + "]";
+        return "Book{" +
+                "title='" + title + '\'' +
+                ", files=" + files +
+                '}';
     }
 
 
 
-    static Book parseToBook(File dir, Context context) {
+    static Book tryParseToBook(File dir, Context context) {
         if (!dir.isDirectory()) return null;
 
-        ContentResolver cr = context.getContentResolver();
-        Uri audioUri = MediaStore.Audio.Media.getContentUriForPath(dir.getPath());
-        //Uri audioUri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
-        Cursor audioCursor = cr.query(audioUri, null, null, null, null);
+        String path = dir.getPath();
+        if (!path.endsWith("/")) {
+            path += "/";
+        }
+
+        Cursor audioCursor = context.getContentResolver().query(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
+                null,
+                MediaStore.Audio.Media.DATA + " LIKE ? AND " + MediaStore.Audio.Media.DATA + " NOT LIKE ?", //DATA for file path
+                new String[]{path + "%", path + "%/%"},
+                MediaStore.Audio.Media.DISPLAY_NAME + " ASC"); //DISPLAY_NAME for file title
 
         if (audioCursor != null && audioCursor.moveToFirst()) {
             //get columns
-            int idColumn = audioCursor.getColumnIndex(MediaStore.Audio.Media._ID);
-            //int titleColumn = audioCursor.getColumnIndex(MediaStore.Audio.Media.TITLE);
-            //int artistColumn = audioCursor.getColumnIndex(MediaStore.Audio.Media.ARTIST);
+            int idCol = audioCursor.getColumnIndex(MediaStore.Audio.Media._ID);
+            int fileNameCol = audioCursor.getColumnIndex(MediaStore.Audio.Media.DISPLAY_NAME);
+            int durationCol = audioCursor.getColumnIndex(MediaStore.Audio.Media.DURATION);
 
-            List<Long> fileIds = new ArrayList<>();
+            List<BookFile> files = new ArrayList<>();
             do {
-                long id = audioCursor.getLong(idColumn);
-                //String thisTitle = audioCursor.getString(titleColumn);
-                //String thisArtist = audioCursor.getString(artistColumn);
-                fileIds.add(id);
+                long id = audioCursor.getLong(idCol);
+                String fileName = audioCursor.getString(fileNameCol);
+                long duration = audioCursor.getLong(durationCol);
+                files.add(new BookFile(id, fileName, duration));
             }
             while (audioCursor.moveToNext());
 
-            return new Book(dir.getName(), fileIds);
+            return new Book(dir.getName(), files);
         }
         else return null;
     }
