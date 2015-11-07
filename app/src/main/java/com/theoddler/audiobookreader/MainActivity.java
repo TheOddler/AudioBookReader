@@ -19,15 +19,13 @@ import net.rdrei.android.dirchooser.DirectoryChooserActivity;
 import net.rdrei.android.dirchooser.DirectoryChooserConfig;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
     private final String PREF_ROOT = "audio_books_root";
     private final int REQUEST_ROOT = 31415;
 
-    private final List<Book> books = new ArrayList<>();
+    private final Library library = new Library();
     private ListView booksView;
 
     @Override
@@ -47,6 +45,7 @@ public class MainActivity extends AppCompatActivity {
         });
 
         booksView = (ListView)findViewById(R.id.books_list);
+        booksView.setAdapter(new BookAdapter(library, this));
 
         getOrAskForRoot();
     }
@@ -161,12 +160,9 @@ public class MainActivity extends AppCompatActivity {
             Log.println(Log.INFO, "BOOKS", "Looking for book in " + dir.getPath());
             Book book = Book.tryParseToBook(dir, this);
             if (book != null) {
-                books.add(book);
+                library.addBook(book);
                 Log.println(Log.INFO, "BOOKS", "Found book: " + book.toString());
             }
         }
-
-        BookAdapter bookAdapter = new BookAdapter(books, this);
-        booksView.setAdapter(bookAdapter);
     }
 }

@@ -20,17 +20,17 @@ import java.util.List;
  */
 public class BookAdapter extends BaseAdapter {
 
-    private List<Book> books;
-    private Context context;
+    private final Library library;
+    private final Context context;
 
-    public BookAdapter(List<Book> books, Context context) {
-        this.books = books;
+    public BookAdapter(Library library, Context context) {
+        this.library = library;
         this.context = context;
     }
 
     @Override
     public int getCount() {
-        return books.size();
+        return library.bookCount();
     }
 
     @Override
@@ -56,7 +56,7 @@ public class BookAdapter extends BaseAdapter {
         ProgressBar progressBar = (ProgressBar)convertView.findViewById(R.id.book_progress);
 
         // Get book using the position
-        Book book = books.get(position);
+        Book book = library.getBook(position);
         // Set the info
         imageView.setImageDrawable(ContextCompat.getDrawable(context, android.R.drawable.ic_media_play));
         titleView.setText(book.getTitle());
