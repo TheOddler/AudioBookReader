@@ -20,31 +20,23 @@ public class ReaderService extends Service implements
     private Book book;
     private Book.Progress progress;
 
+    @Nullable
+    @Override
+    public IBinder onBind(Intent intent) {
+        return null;
+    }
+
     @Override
     public void onCreate() {
         super.onCreate();
         player = new MediaPlayer();
-        initPlayer();
-    }
 
-    private void initPlayer() {
         player.setWakeMode(getApplicationContext(), PowerManager.PARTIAL_WAKE_LOCK);
         player.setAudioStreamType(AudioManager.STREAM_MUSIC);
 
         player.setOnPreparedListener(this);
         player.setOnCompletionListener(this);
         player.setOnErrorListener(this);
-    }
-
-    public void setBook(Book book) {
-        this.book = book;
-        this.progress = book.getStartProgress();
-    }
-
-    @Nullable
-    @Override
-    public IBinder onBind(Intent intent) {
-        return null;
     }
 
     @Override
@@ -60,6 +52,13 @@ public class ReaderService extends Service implements
     @Override
     public void onPrepared(MediaPlayer mp) {
 
+    }
+
+
+
+    public void setBook(Book book) {
+        this.book = book;
+        this.progress = book.getStartProgress();
     }
 
     /**
