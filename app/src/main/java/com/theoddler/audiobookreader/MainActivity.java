@@ -151,6 +151,7 @@ public class MainActivity extends AppCompatActivity {
             throw new IllegalArgumentException("RootPath doesn't point to a directory.");
         }
 
+        library.removeAllBook();
         // TODO
         // Allow for books in sub folders
         // for simplicity first implement getting book directly in the root
