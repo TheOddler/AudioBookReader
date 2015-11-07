@@ -45,9 +45,7 @@ public class MainActivity extends AppCompatActivity {
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                stopService(readerBindingIntent);
-                readerService = null;
-                System.exit(0);
+                finish();
             }
         });
 
@@ -59,6 +57,7 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onDestroy() {
+        unbindService(readerConnection);
         stopService(readerBindingIntent);
         readerService = null;
         super.onDestroy();
@@ -186,7 +185,6 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
             ReaderService.Binder binder = (ReaderService.Binder)service;
-            //get service
             readerService = binder.getService();
             readerBound = true;
         }
