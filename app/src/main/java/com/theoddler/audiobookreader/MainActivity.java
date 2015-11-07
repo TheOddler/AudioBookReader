@@ -56,6 +56,17 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @Override
+    protected void onStart() {
+        super.onStart();
+
+        if (readerBindingIntent == null) {
+            readerBindingIntent = new Intent(this, ReaderService.class);
+            bindService(readerBindingIntent, readerConnection, Context.BIND_AUTO_CREATE);
+            startService(readerBindingIntent);
+        }
+    }
+
+    @Override
     protected void onDestroy() {
         unbindService(readerConnection);
         stopService(readerBindingIntent);
@@ -68,17 +79,6 @@ public class MainActivity extends AppCompatActivity {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_main, menu);
         return true;
-    }
-
-    @Override
-    protected void onStart() {
-        super.onStart();
-
-        if (readerBindingIntent == null) {
-            readerBindingIntent = new Intent(this, ReaderService.class);
-            bindService(readerBindingIntent, readerConnection, Context.BIND_AUTO_CREATE);
-            startService(readerBindingIntent);
-        }
     }
 
     @Override
@@ -123,7 +123,7 @@ public class MainActivity extends AppCompatActivity {
             alert.create().show();
         }
         else {
-            onRootSet(root);
+            onRootFound(root);
         }
     }
 
@@ -147,7 +147,7 @@ public class MainActivity extends AppCompatActivity {
         if (requestCode == REQUEST_ROOT) {
             if (resultCode == DirectoryChooserActivity.RESULT_CODE_DIR_SELECTED) {
                 String chosenDir = data.getStringExtra(DirectoryChooserActivity.RESULT_SELECTED_DIR);
-                onSelectedRoot(chosenDir);
+                onRootSelected(chosenDir);
             }
             else {
                 // Nothing selected
@@ -156,16 +156,16 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private void onSelectedRoot(String root) {
+    private void onRootSelected(String root) {
         SharedPreferences prefs = getPreferences(MODE_PRIVATE);
         SharedPreferences.Editor editor = prefs.edit();
         editor.putString(PREF_ROOT, root);
         editor.commit();
 
-        onRootSet(root);
+        onRootFound(root);
     }
 
-    private void onRootSet(String rootPath) {
+    private void onRootFound(String rootPath) {
         // also called when re-selecting root
         Log.println(Log.DEBUG, "MAIN", "Found root: " + rootPath);
 
