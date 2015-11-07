@@ -1,10 +1,14 @@
 package com.theoddler.audiobookreader;
 
 import android.app.AlertDialog;
+import android.content.ComponentName;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.os.IBinder;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
@@ -28,6 +32,10 @@ public class MainActivity extends AppCompatActivity {
     private final Library library = new Library();
     private ListView booksView;
 
+    private ReaderService readerService;
+    private Intent readerBindingIntent;
+    private boolean readerBound = false;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -39,8 +47,9 @@ public class MainActivity extends AppCompatActivity {
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
+                stopService(readerBindingIntent);
+                readerService = null;
+                System.exit(0);
             }
         });
 
@@ -51,10 +60,28 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @Override
+    protected void onDestroy() {
+        stopService(readerBindingIntent);
+        readerService = null;
+        super.onDestroy();
+    }
+
+    @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_main, menu);
         return true;
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+
+        if (readerBindingIntent == null) {
+            readerBindingIntent = new Intent(this, ReaderService.class);
+            bindService(readerBindingIntent, readerConnection, Context.BIND_AUTO_CREATE);
+            startService(readerBindingIntent);
+        }
     }
 
     @Override
@@ -166,4 +193,27 @@ public class MainActivity extends AppCompatActivity {
             }
         }
     }
+
+    public void onBookPicked(View view) {
+        readerService.setBook((Book)view.getTag());
+        readerService.startReading();
+    }
+
+
+
+    private ServiceConnection readerConnection = new ServiceConnection() {
+
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder service) {
+            ReaderService.Binder binder = (ReaderService.Binder)service;
+            //get service
+            readerService = binder.getService();
+            readerBound = true;
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName name) {
+            readerBound = false;
+        }
+    };
 }

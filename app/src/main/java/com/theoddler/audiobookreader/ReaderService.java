@@ -1,12 +1,17 @@
 package com.theoddler.audiobookreader;
 
 import android.app.Service;
+import android.content.ContentUris;
 import android.content.Intent;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
+import android.net.Uri;
 import android.os.IBinder;
 import android.os.PowerManager;
 import android.support.annotation.Nullable;
+import android.util.Log;
+
+import java.io.IOException;
 
 /**
  * Created by Pablo on 07/11/15.
@@ -20,10 +25,20 @@ public class ReaderService extends Service implements
     private Book book;
     private Book.Progress progress;
 
+    private final IBinder binder = new Binder();
+
     @Nullable
     @Override
     public IBinder onBind(Intent intent) {
-        return null;
+        return binder;
+    }
+
+    @Nullable
+    @Override
+    public boolean onUnbind(Intent intent) {
+        player.stop();
+        player.release();
+        return false;
     }
 
     @Override
@@ -41,7 +56,9 @@ public class ReaderService extends Service implements
 
     @Override
     public void onCompletion(MediaPlayer mp) {
-
+        if(progress.startNextFile()) {
+            startReading();
+        }
     }
 
     @Override
@@ -51,7 +68,7 @@ public class ReaderService extends Service implements
 
     @Override
     public void onPrepared(MediaPlayer mp) {
-
+        mp.start();
     }
 
 
@@ -59,6 +76,23 @@ public class ReaderService extends Service implements
     public void setBook(Book book) {
         this.book = book;
         this.progress = book.getStartProgress();
+    }
+
+    public void startReading() {
+        player.reset();
+
+        Uri uri = ContentUris.withAppendedId(
+                android.provider.MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
+                progress.getFile().getId());
+
+        try {
+            player.setDataSource(getApplicationContext(), uri);
+        }
+        catch (IOException e) {
+            Log.e("READER SERVICE", "Error setting data source", e);
+        }
+
+        player.prepareAsync();
     }
 
     /**
