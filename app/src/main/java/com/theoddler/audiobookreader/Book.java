@@ -26,12 +26,25 @@ public class Book {
         return title;
     }
 
+    /**
+     * Get the duration of this book
+     * @return the duration in milliseconds
+     */
     public long getDuration() {
         long dur = 0;
         for(BookFile file : files) {
             dur += file.getDuration();
         }
         return dur;
+    }
+
+    public int getRoughDurationInSeconds() {
+        return (int)(getDuration() / 1000);
+    }
+
+    // TODO
+    public int getRoughProgressInSeconds() {
+        return getRoughDurationInSeconds() / 3;
     }
 
 

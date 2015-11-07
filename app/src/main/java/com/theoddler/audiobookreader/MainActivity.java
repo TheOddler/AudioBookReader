@@ -13,6 +13,7 @@ import android.util.Log;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.ListView;
 
 import net.rdrei.android.dirchooser.DirectoryChooserActivity;
 import net.rdrei.android.dirchooser.DirectoryChooserConfig;
@@ -27,6 +28,7 @@ public class MainActivity extends AppCompatActivity {
     private final int REQUEST_ROOT = 31415;
 
     private final List<Book> books = new ArrayList<>();
+    private ListView booksView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,6 +45,8 @@ public class MainActivity extends AppCompatActivity {
                         .setAction("Action", null).show();
             }
         });
+
+        booksView = (ListView)findViewById(R.id.books_list);
 
         getOrAskForRoot();
     }
@@ -161,5 +165,8 @@ public class MainActivity extends AppCompatActivity {
                 Log.println(Log.INFO, "BOOKS", "Found book: " + book.toString());
             }
         }
+
+        BookAdapter bookAdapter = new BookAdapter(books, this);
+        booksView.setAdapter(bookAdapter);
     }
 }
