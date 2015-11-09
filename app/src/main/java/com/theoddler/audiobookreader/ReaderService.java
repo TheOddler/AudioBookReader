@@ -22,8 +22,7 @@ public class ReaderService extends Service implements
         MediaPlayer.OnCompletionListener {
 
     private MediaPlayer player;
-    private Book book;
-    private Book.Progress progress;
+    private Progress progress;
 
     private final IBinder binder = new Binder();
 
@@ -57,7 +56,7 @@ public class ReaderService extends Service implements
     @Override
     public void onCompletion(MediaPlayer mp) {
         if(progress.startNextFile()) {
-            startReading();
+            read();
         }
     }
 
@@ -73,12 +72,37 @@ public class ReaderService extends Service implements
 
 
 
-    public void setBook(Book book) {
-        this.book = book;
-        this.progress = book.getStartProgress();
+    public void readFromStart(Book book) {
+        this.progress = new Progress(book, 0, 0);
+        read();
     }
 
-    public void startReading() {
+    public void readStartingAt(long time, Book book) {
+        Progress prog = null;
+        for (int i = 0; i < book.getFileCount(); ++i) {
+            long fileDur = book.getFile(i).getDuration();
+            if (time >= fileDur) {
+                time -= fileDur;
+            }
+            else {
+                prog = new Progress(book, i, time);
+            }
+        }
+
+        if (prog == null) {
+            Log.println(Log.INFO, "BOOK PROGRESS", "Trying to create `progress` for a book longer than the book itself.");
+            prog = new Progress(book, 0, 0);
+        }
+
+        this.progress = prog;
+        read();
+    }
+
+    public void readStartingAtBookmark(String bookmark, Book book) {
+        // TODO
+    }
+
+    private void read() {
         player.reset();
 
         Uri uri = ContentUris.withAppendedId(
@@ -87,12 +111,12 @@ public class ReaderService extends Service implements
 
         try {
             player.setDataSource(getApplicationContext(), uri);
+            player.prepareAsync();
         }
         catch (IOException e) {
             Log.e("READER SERVICE", "Error setting data source", e);
+            // TODO
         }
-
-        player.prepareAsync();
     }
 
     /**
@@ -101,6 +125,48 @@ public class ReaderService extends Service implements
     public class Binder extends android.os.Binder {
         ReaderService getService() {
             return ReaderService.this;
+        }
+    }
+
+    /**
+     * Progress in a book
+     */
+    public class Progress {
+        private Book book;
+        private int fileNumber;
+        private long fileProgress;
+
+        protected Progress(Book book, int fileNumber, long fileProgress) {
+            this.book = book;
+            this.fileNumber = fileNumber % book.getFileCount();
+            this.fileProgress = fileProgress;
+        }
+
+        public BookFile getFile() {
+            return book.getFile(fileNumber);
+        }
+
+        public long getFileProgress() {
+            return fileProgress;
+        }
+
+        public long getTotalProgress() {
+            long totalProgress = fileProgress;
+            for (int i = 0; i < fileNumber; ++i) {
+                totalProgress += book.getFile(i).getDuration();
+            }
+            return totalProgress;
+        }
+
+        /**
+         * Start the next file of the book.
+         * This will loop around the files if called when in the last file.
+         * @return Whether or not there was a next file
+         */
+        public boolean startNextFile() {
+            fileNumber = (fileNumber + 1) % book.getFileCount();
+            fileProgress = 0;
+            return fileNumber > 0; //If it's 0 we looped, so there was no next file.
         }
     }
 }

@@ -47,8 +47,12 @@ public class Book {
         return getRoughDurationInSeconds() / 3;
     }
 
-    public Progress getStartProgress() {
-        return new Progress(0, 0);
+    // TODO, put reader, library and book in their own package
+    int getFileCount() {
+        return files.size();
+    }
+    BookFile getFile(int index) {
+        return files.get(index);
     }
 
 
@@ -94,43 +98,6 @@ public class Book {
             return new Book(dir.getName(), files);
         }
         else return null;
-    }
-
-    public class Progress {
-        private int fileNumber;
-        private long fileProgress;
-
-        protected Progress(int fileNumber, long fileProgress) {
-            this.fileNumber = fileNumber % files.size();
-            this.fileProgress = fileProgress;
-        }
-
-        public BookFile getFile() {
-            return files.get(fileNumber);
-        }
-
-        public long getFileProgress() {
-            return fileProgress;
-        }
-
-        public long getTotalProgress() {
-            long totalProgress = fileProgress;
-            for (int i = 0; i < fileNumber; ++i) {
-                totalProgress += files.get(i).getDuration();
-            }
-            return totalProgress;
-        }
-
-        /**
-         * Start the next file of the book.
-         * This will loop around the files if called when in the last file.
-         * @return Whether or not there was a next file
-         */
-        public boolean startNextFile() {
-            fileNumber = (fileNumber + 1) % files.size();
-            fileProgress = 0;
-            return fileNumber > 0; //If it's 0 we looped, so there was no next file.
-        }
     }
 
 }

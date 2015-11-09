@@ -174,8 +174,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void onBookPicked(View view) {
-        readerService.setBook((Book)view.getTag());
-        readerService.startReading();
+        readerService.readFromStart((Book) view.getTag());
     }
 
 
