@@ -18,6 +18,10 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.ListView;
 
+import com.theoddler.audiobookreader.Books.Book;
+import com.theoddler.audiobookreader.Books.Library;
+import com.theoddler.audiobookreader.Books.ReaderService;
+
 import net.rdrei.android.dirchooser.DirectoryChooserActivity;
 import net.rdrei.android.dirchooser.DirectoryChooserConfig;
 

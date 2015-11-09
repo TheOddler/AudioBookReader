@@ -1,4 +1,4 @@
-package com.theoddler.audiobookreader;
+package com.theoddler.audiobookreader.Books;
 
 import android.app.Service;
 import android.content.ContentUris;

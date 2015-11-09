@@ -1,4 +1,4 @@
-package com.theoddler.audiobookreader;
+package com.theoddler.audiobookreader.Books;
 
 /**
  * Created by Pablo on 07/11/15.
@@ -17,7 +17,7 @@ public class BookFile {
         this.duration = duration;
     }
 
-    public long getId() {
+    long getId() {
         return id;
     }
 

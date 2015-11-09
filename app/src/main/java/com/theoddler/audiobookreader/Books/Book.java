@@ -1,4 +1,4 @@
-package com.theoddler.audiobookreader;
+package com.theoddler.audiobookreader.Books;
 
 import android.content.Context;
 import android.database.Cursor;
@@ -47,7 +47,6 @@ public class Book {
         return getRoughDurationInSeconds() / 3;
     }
 
-    // TODO, put reader, library and book in their own package
     int getFileCount() {
         return files.size();
     }
