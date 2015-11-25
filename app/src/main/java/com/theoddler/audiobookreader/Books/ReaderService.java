@@ -1,11 +1,9 @@
-package com.theoddler.audiobookreader.Books;
+package com.theoddler.audiobookreader.books;
 
 import android.app.Service;
-import android.content.ContentUris;
 import android.content.Intent;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
-import android.net.Uri;
 import android.os.IBinder;
 import android.os.PowerManager;
 import android.support.annotation.Nullable;
@@ -105,12 +103,8 @@ public class ReaderService extends Service implements
     private void read() {
         player.reset();
 
-        Uri uri = ContentUris.withAppendedId(
-                android.provider.MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
-                progress.getFile().getId());
-
         try {
-            player.setDataSource(getApplicationContext(), uri);
+            player.setDataSource(progress.getFile().getPath());
             player.prepareAsync();
         }
         catch (IOException e) {
@@ -123,7 +117,7 @@ public class ReaderService extends Service implements
      * The binder for this reader.
      */
     public class Binder extends android.os.Binder {
-        ReaderService getService() {
+        public ReaderService getService() {
             return ReaderService.this;
         }
     }

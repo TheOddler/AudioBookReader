@@ -1,24 +1,39 @@
-package com.theoddler.audiobookreader.Books;
+package com.theoddler.audiobookreader.books;
+
+import android.media.MediaMetadataRetriever;
+
+import java.io.File;
 
 /**
  * Created by Pablo on 07/11/15.
  */
 public class BookFile {
 
-    private long id;
+    private File file;
 
     private String name;
     private long duration;
 
-    public BookFile(long id, String name, long duration) {
-        this.id = id;
+    public BookFile(File file, MediaMetadataRetriever mmr) throws IllegalArgumentException {
+        if (!file.isFile()) {
+            throw new IllegalArgumentException("Couldn't create BookFile: 'file' isn't a file.");
+        }
 
-        this.name = name;
-        this.duration = duration;
+        this.file = file;
+
+        this.name = file.getName();
+
+        try {
+            mmr.setDataSource(file.getAbsolutePath());
+            this.duration = Long.parseLong(mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION));
+        }
+        catch (Exception e) {
+            throw new IllegalArgumentException("Couldn't create BookFile: Couldn't retrieve metadata.");
+        }
     }
 
-    long getId() {
-        return id;
+    public String getPath() {
+        return file.getAbsolutePath();
     }
 
     public String getName() {

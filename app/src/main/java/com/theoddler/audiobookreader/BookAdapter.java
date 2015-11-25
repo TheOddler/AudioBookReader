@@ -10,8 +10,8 @@ import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import com.theoddler.audiobookreader.Books.Book;
-import com.theoddler.audiobookreader.Books.Library;
+import com.theoddler.audiobookreader.books.Book;
+import com.theoddler.audiobookreader.books.Library;
 
 /**
  * Created by Pablo on 07/11/15.

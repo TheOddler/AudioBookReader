@@ -27,7 +27,7 @@
 
         <activity android:name="net.rdrei.android.dirchooser.DirectoryChooserActivity" />
 
-        <service android:name=".Books.ReaderService"/>
+        <service android:name=".books.ReaderService"/>
 
     </application>
 

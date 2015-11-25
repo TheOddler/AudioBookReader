@@ -18,9 +18,9 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.ListView;
 
-import com.theoddler.audiobookreader.Books.Book;
-import com.theoddler.audiobookreader.Books.Library;
-import com.theoddler.audiobookreader.Books.ReaderService;
+import com.theoddler.audiobookreader.books.Book;
+import com.theoddler.audiobookreader.books.Library;
+import com.theoddler.audiobookreader.books.ReaderService;
 
 import net.rdrei.android.dirchooser.DirectoryChooserActivity;
 import net.rdrei.android.dirchooser.DirectoryChooserConfig;
@@ -174,7 +174,7 @@ public class MainActivity extends AppCompatActivity {
         Log.println(Log.DEBUG, "MAIN", "Found root: " + rootPath);
 
         library.removeAllBook();
-        library.findAllBooksIn(new File(rootPath), this);
+        library.findAllBooksIn(new File(rootPath));
     }
 
     public void onBookPicked(View view) {

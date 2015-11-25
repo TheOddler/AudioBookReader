@@ -1,6 +1,5 @@
-package com.theoddler.audiobookreader.Books;
+package com.theoddler.audiobookreader.books;
 
-import android.content.Context;
 import android.util.Log;
 
 import java.io.File;
@@ -36,7 +35,7 @@ public class Library {
         books.clear();
     }
 
-    public void findAllBooksIn(File rootDir, Context context) {
+    public void findAllBooksIn(File rootDir) {
         if (!rootDir.isDirectory()) {
             throw new IllegalArgumentException("RootPath doesn't point to a directory.");
         }
@@ -47,7 +46,7 @@ public class Library {
         File[] possibleBooks = rootDir.listFiles();
 
         for (File dir : possibleBooks) {
-            Book book = Book.tryParseToBook(dir, context);
+            Book book = Book.tryParseToBook(dir);
             if (book != null) {
                 addBook(book);
                 Log.println(Log.INFO, "LIBRARY", "Found book: " + book.toString());
